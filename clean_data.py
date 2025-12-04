@@ -51,6 +51,7 @@ def main(input_csv, output_csv):
                 "base_id": row["ID"],
                 "variant": "younger",
                 "shift_years": younger_shift,
+                "grad_year": younger_year,
                 "resume_text": younger_text,
                 "category": row["Category"]
             })
@@ -67,6 +68,7 @@ def main(input_csv, output_csv):
                 "base_id": row["ID"],
                 "variant": "older",
                 "shift_years": older_shift,
+                "grad_year": older_year,
                 "resume_text": older_text,
                 "category": row["Category"]
             })
