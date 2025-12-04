@@ -3,8 +3,8 @@ import pandas as pd
 import random
 
 CURRENT_YEAR = 2025
-YOUNG_TARGET_GRAD = 2022 # approx age 35
-OLD_TARGET_GRAD   = 1997 # approx age 50
+YOUNG_TARGET_GRAD = 2012 # approx age 35
+OLD_TARGET_GRAD = 1997 # approx age 50
 HALF_RANGE = 5
 
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
