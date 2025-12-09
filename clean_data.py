@@ -3,16 +3,14 @@ import pandas as pd
 import random
 
 CURRENT_YEAR = 2025
-YOUNG_TARGET_GRAD = 2012 # approx age 35
-OLD_TARGET_GRAD = 1997 # approx age 50
-HALF_RANGE = 5
+GRAD_YEARS = [2022, 2007, 1992, 1977] # approx age 25, 40, 55, 70
+AGE_RANGE = 5
 
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 random.seed(3000)
 
 def extract_years(text):
     years = [int(m.group()) for m in YEAR_RE.finditer(text)]
-    years = [y for y in years if 1980 <= y <= CURRENT_YEAR]
     return sorted(set(years))
 
 def shift_years(text, shift):
@@ -33,46 +31,24 @@ def main(input_csv, output_csv):
                 continue
             earliest = min(years)
             max_year = max(years)
+            if max_year > 2025:
+                continue
 
-            # Younger version
-            if earliest > YOUNG_TARGET_GRAD + HALF_RANGE or earliest < YOUNG_TARGET_GRAD - HALF_RANGE:
-                younger_year = YOUNG_TARGET_GRAD - random.randint(-HALF_RANGE, HALF_RANGE)
-                younger_shift = younger_year - earliest
-                # Clamp younger shift to avoid future years
-                if younger_shift > 0 and (max_year + younger_shift > CURRENT_YEAR):
-                    younger_shift = CURRENT_YEAR - max_year
-                    if younger_shift < 0:
-                        younger_shift = 0
-                younger_text = shift_years(row["Resume_str"], younger_shift)
-            else:
-                younger_shift = 0
-                younger_text = row["Resume_str"]
-            records.append({
-                "base_id": row["ID"],
-                "variant": "younger",
-                "shift_years": younger_shift,
-                "grad_year": younger_year,
-                "resume_text": younger_text,
-                "category": row["Category"]
-            })
-
-            # Older version
-            if earliest > OLD_TARGET_GRAD + HALF_RANGE or earliest < OLD_TARGET_GRAD - HALF_RANGE:
-                older_year = OLD_TARGET_GRAD - random.randint(-HALF_RANGE, HALF_RANGE)
-                older_shift = older_year - earliest
-                older_text = shift_years(row["Resume_str"], older_shift)
-            else:
-                older_shift = 0
-                older_text = row["Resume_str"]
-            records.append({
-                "base_id": row["ID"],
-                "variant": "older",
-                "shift_years": older_shift,
-                "grad_year": older_year,
-                "resume_text": older_text,
-                "category": row["Category"]
-            })
-
+            for i in range(len(GRAD_YEARS)):
+                year = GRAD_YEARS[i] + random.randint(0, AGE_RANGE) # grad year in range
+                shift = year - earliest # number to add to all dates
+                if shift > 0 and (max_year + shift > CURRENT_YEAR):
+                    shift = CURRENT_YEAR - max_year # maximum shift
+                    year = earliest + shift
+                text = shift_years(row["Resume_str"], shift)
+                records.append({
+                    "base_id": row["ID"],
+                    "variant": i,
+                    "shift_years": shift,
+                    "grad_year": year,
+                    "resume_text": text,
+                    "category": row["Category"]
+                })
     out = pd.DataFrame(records)
     out.to_csv(output_csv, index=False)
     print("Saved:", output_csv)
