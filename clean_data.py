@@ -35,7 +35,7 @@ def main(input_csv, output_csv):
                 continue
 
             for i in range(len(GRAD_YEARS)):
-                year = GRAD_YEARS[i] + random.randint(0, AGE_RANGE) # grad year in range
+                year = GRAD_YEARS[i] - random.randint(0, AGE_RANGE) # grad year in range
                 shift = year - earliest # number to add to all dates
                 if shift > 0 and (max_year + shift > CURRENT_YEAR):
                     shift = CURRENT_YEAR - max_year # maximum shift
@@ -50,6 +50,12 @@ def main(input_csv, output_csv):
                     "category": row["Category"]
                 })
     out = pd.DataFrame(records)
+    valid_ids = (
+        out.groupby("base_id")["grad_year"]
+        .nunique()
+        .eq(4)
+    )
+    out = out[out["base_id"].map(valid_ids)]
     out.to_csv(output_csv, index=False)
     print("Saved:", output_csv)
 
