@@ -7,6 +7,7 @@ import re
 import time
 import random
 import requests
+import numpy as np
 
 session = requests.Session()
 session.keep_alive = True
@@ -40,7 +41,8 @@ available_models = [
                     "gpt-4o", 
                     "gpt-4-turbo",
                     "mistral-small-2503",
-                    "Mistral-Large-2411"
+                    "Mistral-Large-2411",
+                    "gemini-3-pro-preview"
                 ]
 
 # This function will submit a simple text prompt to the chosen model
@@ -82,11 +84,18 @@ if __name__ == "__main__":
         for _, row in df.iterrows():
             out = text_prompt_example(model, row['resume_text'], row['category'])
             outputs.append(out)
-            match = re.search(r"\{.*?\}", out, re.DOTALL)
-            data = json.loads(match.group(0))
-            hire = data.get("hire", 0)
-            score = data.get("score", 0)
-            salary = data.get("salary", 0)
+            try: 
+                match = re.search(r"\{.*?\}", out, re.DOTALL)
+                data = json.loads(match.group(0))
+                hire = data.get("hire", 0)
+                score = data.get("score", 0)
+                salary = data.get("salary", 0)
+            except Exception as e:
+                print("Incorrect output format")
+                hire = np.nan
+                score = np.nan
+                salary = np.nan
+
             hires.append(hire)
             scores.append(score)
             salaries.append(salary)
