@@ -39,6 +39,12 @@ variant_labels = {
 
 df["variant_label"] = df["variant"].map(variant_labels)
 
+df["variant_label"] = pd.Categorical(
+    df["variant_label"],
+    categories=["25-30", "40-45", "55-60", "70-75"],
+    ordered=True
+)
+
 g = sns.catplot(
     data=df,
     kind="bar",
@@ -52,7 +58,7 @@ g = sns.catplot(
     aspect=0.9
 )
 
-g.set_axis_labels("Age range", "Average hire score")
+g.set_axis_labels("Age range", "Average score")
 g.set_titles("{col_name}")
 
 for ax in g.axes.flatten():
