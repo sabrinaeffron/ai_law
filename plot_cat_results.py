@@ -2,7 +2,26 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-df = pd.read_csv("outputs/test_results_gpt-4-turbo.csv")
+
+models = [
+    "gpt-5",
+    "o3-mini",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "gpt-4-turbo",
+    "mistral-small-2503",
+    "Mistral-Large-2411",
+]
+
+model_files = {
+    model: f"outputs/test_results_{model}.csv" for model in models
+}
+
+dfs = []
+for model_name, path in model_files.items():
+    df_model = pd.read_csv(path)
+    df_model["model"] = model_name
+    dfs.append(df_model)
 
 variant_labels = {
     0: "25-30",
@@ -10,6 +29,8 @@ variant_labels = {
     2: "55-60",
     3: "70-75"
 }
+
+df = pd.concat(dfs, ignore_index=True)
 
 df["variant_label"] = df["variant"].map(variant_labels)
 
